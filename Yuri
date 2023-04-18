@@ -1,0 +1,97 @@
+# Defina as constantes do jogo
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+FPS = 60
+
+# Defina as cores
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+# Inicialize o Pygame
+pygame.init()
+
+# Configure a janela do jogo
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Meu Jogo de Tiro")
+
+# Crie uma classe para o jogador
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.speed = 5
+
+    def update(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            self.rect.x -= self.speed
+        if keys[pygame.K_RIGHT]:
+            self.rect.x += self.speed
+        if keys[pygame.K_UP]:
+            self.rect.y -= self.speed
+        if keys[pygame.K_DOWN]:
+            self.rect.y += self.speed
+
+# Crie uma classe para os inimigos
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((30, 30))
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width)
+        self.rect.y = random.randrange(-100, -40)
+        self.speed = random.randrange(1, 8)
+
+    def update(self):
+        self.rect.y += self.speed
+        if self.rect.top > SCREEN_HEIGHT + 10:
+            self.rect.x = random.randrange(SCREEN_WIDTH - self.rect.width)
+            self.rect.y = random.randrange(-100, -40)
+            self.speed = random.randrange(1, 8)
+
+# Crie os grupos de sprites
+all_sprites = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
+player = Player()
+all_sprites.add(player)
+
+# Crie vários inimigos e adicione ao grupo
+for i in range(10):
+    enemy = Enemy()
+    all_sprites.add(enemy)
+    enemies.add(enemy)
+
+# Inicie o loop do jogo
+running = True
+clock = pygame.time.Clock()
+while running:
+    # Mantenha o loop na velocidade correta
+    clock.tick(FPS)
+
+    # Processar eventos (teclado, mouse, etc)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Atualize os sprites
+    all_sprites.update()
+
+    # Verifique se os inimigos colidem com o jogador
+    hits = pygame.sprite.spritecollide(player, enemies, False)
+    if hits:
+        running = False
+
+    # Limpe a tela e desenhe todos os sprites
+    screen.fill(WHITE)
+    all_sprites.draw(screen)
+
+    # Atualize a janela
+    pygame.display.flip()
+
+# Encerre o Pygame
+pygame.quit()
+Este é um jogo de tiro simples em que o jogador controla um personagem branco e atira em inimigos pretos que caem do topo da tela. O objetivo é sobreviver o maior tempo possível. É um bom ponto de
